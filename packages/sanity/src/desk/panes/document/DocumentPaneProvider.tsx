@@ -438,11 +438,20 @@ export const DocumentPaneProvider = memo((props: DocumentPaneProviderProps) => {
     }
   }, [connectionState, pushToast])
 
-  // Reset `focusPath` when `documentId` or `params.path` changes
   useEffect(() => {
-    // Reset focus path
-    setFocusPath(params.path ? pathFromString(params.path) : [])
+    // The path that is specified in the URL
+    const paramsPath = params.path ? pathFromString(params.path) : []
+
+    // The first field in the schema
+    // TODO: consider adding logic to check if the first field is enabled
+    const firstField = schemaType?.fields?.[0].name
+
+    // If the path in the URL is empty, use the first field in
+    // the schema, otherwise use the path in the URL
+    const pathToFocus = paramsPath.length > 0 ? paramsPath : [firstField || '']
+
     onSetOpenPath([])
+    setFocusPath(pathToFocus || [])
   }, [params.path, schemaType?.fields, documentId])
 
   return (
